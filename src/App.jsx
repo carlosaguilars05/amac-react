@@ -33,7 +33,7 @@ function PaginaNoEncontrada() {
   )
 }
 
-export default function App() {
+function App() {
   const { pathname } = useLocation()
   const usaFondoAzul = pathname === '/login'
 
@@ -136,3 +136,5 @@ export default function App() {
     </>
   )
 }
+
+export default App
