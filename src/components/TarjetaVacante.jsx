@@ -1,7 +1,7 @@
 import Boton from './Boton'
 import { formatearSueldo } from '../lib/constantes'
 
-export default function TarjetaVacante({ vacante }) {
+function TarjetaVacante({ vacante }) {
   return (
     <article className="tarjeta">
       <h3>{vacante.titulo}</h3>
@@ -26,3 +26,5 @@ export default function TarjetaVacante({ vacante }) {
     </article>
   )
 }
+
+export default TarjetaVacante
