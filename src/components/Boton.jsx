@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 
-export default function Boton({
+function Boton({
   children,
   variante = 'primario',
   chico = false,
@@ -41,3 +41,5 @@ export default function Boton({
     </button>
   )
 }
+
+export default Boton
