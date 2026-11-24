@@ -1,7 +1,7 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
-export default function RutaProtegida({ rol, children }) {
+function RutaProtegida({ rol, children }) {
   const { perfil, cargando } = useAuth()
   const location = useLocation()
 
@@ -26,3 +26,4 @@ export default function RutaProtegida({ rol, children }) {
 
   return children
 }
+export default RutaProtegida
