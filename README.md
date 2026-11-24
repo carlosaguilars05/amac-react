@@ -2,7 +2,7 @@
 
 Aplicación web SPA (Single Page Application) para la bolsa de trabajo de **asociAMayores A.C. (AMAC)**, diseñada con enfoque de accesibilidad para personas adultas mayores y empresas aliadas.
 
-- **Sitio publicado (Vercel):** ⚠️ **`[PENDIENTE: pega aquí tu URL pública de Vercel, ej. https://amac-react.vercel.app]`**
+- **Sitio publicado (Vercel):** https://amac-react-ten.vercel.app/
 - **Repositorio GitHub:** https://github.com/carlosaguilars05/amac-react
 - **Video de presentación (12–15 min):** ⚠️ **`[PENDIENTE: pega aquí el enlace de YouTube (No listado) / Drive / OneDrive]`**
 - **Diapositivas:** ⚠️ **`[PENDIENTE: pega aquí el enlace o PDF de las diapositivas]`**
