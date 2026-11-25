@@ -14,15 +14,7 @@ function ListadoVacantes() {
   const [errorCarga, setErrorCarga] = useState('')
 
   useEffect(() => {
-    let activo = true
-
     async function cargar() {
-      if (!supabase) {
-        setErrorCarga('Falta configurar la conexión con Supabase.')
-        setCargando(false)
-        return
-      }
-
       setCargando(true)
       setErrorCarga('')
 
@@ -32,7 +24,7 @@ function ListadoVacantes() {
         .eq('estado', 'activa')
         .order('creada_en', { ascending: false })
 
-      const terminoLimpio = busqueda.replace(/[,()%]/g, ' ').trim()
+      const terminoLimpio = busqueda.trim()
       if (terminoLimpio) {
         consulta = consulta.or(
           `titulo.ilike.%${terminoLimpio}%,ubicacion.ilike.%${terminoLimpio}%`
@@ -48,22 +40,17 @@ function ListadoVacantes() {
       }
 
       const { data, error } = await consulta
-      if (!activo) return
 
       if (error) {
-        console.error('Error al cargar vacantes:', error.message)
         setErrorCarga('No pudimos cargar las vacantes. Intenta de nuevo en un momento.')
         setVacantes([])
       } else {
-        setVacantes(data || [])
+        setVacantes(data)
       }
       setCargando(false)
     }
 
     cargar()
-    return () => {
-      activo = false
-    }
   }, [busqueda, horariosSeleccionados, categoriasSeleccionadas])
 
   function alternarElemento(lista, setter, valor) {
@@ -183,7 +170,7 @@ function ListadoVacantes() {
 
           <MensajeEstado tipo="error">{errorCarga}</MensajeEstado>
 
-          {cargando && <p role="status">Cargando vacantes…</p>}
+          {cargando && <p>Cargando vacantes…</p>}
 
           {!cargando && !errorCarga && vacantes.length === 0 && (
             <div className="estado-vacio">

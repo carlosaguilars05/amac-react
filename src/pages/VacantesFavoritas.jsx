@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Boton from '../components/Boton'
@@ -13,7 +13,7 @@ function VacantesFavoritas() {
   const [mensaje, setMensaje] = useState('')
   const [quitandoId, setQuitandoId] = useState(null)
 
-  const cargarFavoritos = useCallback(async () => {
+  async function cargarFavoritos() {
     if (!sesion?.user?.id) return
 
     setCargando(true)
@@ -28,18 +28,17 @@ function VacantesFavoritas() {
       .order('creado_en', { ascending: false })
 
     if (errorCarga) {
-      console.error('Error al cargar favoritos:', errorCarga.message)
       setError('No pudimos cargar tus vacantes guardadas.')
     } else {
       setFavoritos(data || [])
     }
 
     setCargando(false)
-  }, [sesion?.user?.id])
+  }
 
   useEffect(() => {
     cargarFavoritos()
-  }, [cargarFavoritos])
+  }, [sesion?.user?.id])
 
   async function quitarFavorito(favoritoId) {
     setQuitandoId(favoritoId)
@@ -75,7 +74,7 @@ function VacantesFavoritas() {
       <MensajeEstado tipo="error">{error}</MensajeEstado>
       <MensajeEstado tipo="exito">{mensaje}</MensajeEstado>
 
-      {cargando && <p role="status">Cargando tus favoritos…</p>}
+      {cargando && <p>Cargando tus favoritos…</p>}
 
       {!cargando && favoritos.length === 0 && (
         <div className="estado-vacio">

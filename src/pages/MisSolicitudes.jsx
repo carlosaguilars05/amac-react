@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -15,7 +15,7 @@ function MisSolicitudes() {
   const [mensaje, setMensaje] = useState('')
   const [cancelandoId, setCancelandoId] = useState(null)
 
-  const cargarSolicitudes = useCallback(async () => {
+  async function cargarSolicitudes() {
     if (!sesion?.user?.id) return
 
     setCargando(true)
@@ -30,20 +30,18 @@ function MisSolicitudes() {
       .order('creada_en', { ascending: false })
 
     if (error) {
-      console.error('Error al cargar solicitudes:', error.message)
       setErrorCarga('No pudimos cargar tus solicitudes. Intenta de nuevo.')
     } else {
       setSolicitudes(data || [])
     }
     setCargando(false)
-  }, [sesion?.user?.id])
+  }
 
   useEffect(() => {
     cargarSolicitudes()
-  }, [cargarSolicitudes])
+  }, [sesion?.user?.id])
 
   async function manejarCancelar(solicitud) {
-    // RF-006: pedir confirmación antes de cancelar
     const confirmado = window.confirm(
       `¿Seguro que quieres cancelar tu solicitud para "${solicitud.vacante?.titulo || 'esta vacante'}"?`
     )
@@ -85,7 +83,7 @@ function MisSolicitudes() {
       <MensajeEstado tipo="error">{errorCarga}</MensajeEstado>
       <MensajeEstado tipo="exito">{mensaje}</MensajeEstado>
 
-      {cargando && <p role="status">Cargando tus solicitudes…</p>}
+      {cargando && <p>Cargando tus solicitudes…</p>}
 
       {!cargando && solicitudes.length === 0 && (
         <div className="estado-vacio">
@@ -123,8 +121,7 @@ function MisSolicitudes() {
                   {solicitud.actualizado_en &&
                     solicitud.estatus !== 'Enviada' && (
                       <p className="tarjeta-meta">
-                        Último cambio de estatus:{' '}
-                        {formatearFecha(solicitud.actualizado_en)}
+                        Último cambio de estatus: {formatearFecha(solicitud.actualizado_en)}
                       </p>
                     )}
                   {solicitud.vacante?.estado &&
