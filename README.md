@@ -3,7 +3,7 @@
 Proyecto final (Entrega 3) de Desarrollo de Aplicaciones Web. Es la bolsa de trabajo de AMAC para personas adultas mayores, ahora hecha en React, con Supabase como base de datos y publicada en Vercel.
 
 - Sitio: https://amac-react-ten.vercel.app/
-- Video: (pendiente)
+- Video: https://drive.google.com/file/d/1GoxQbl-DdqklELhnXzoaPTTpxVFhjhPc/view?usp=sharing
 - Diapositivas: (pendiente)
 
 ## Integrantes
