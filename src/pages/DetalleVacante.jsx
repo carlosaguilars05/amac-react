@@ -7,7 +7,7 @@ import EtiquetaEstatus from '../components/EtiquetaEstatus'
 import MensajeEstado from '../components/MensajeEstado'
 import { formatearSueldo, limpiarTelefono } from '../lib/constantes'
 
-export default function DetalleVacante() {
+function DetalleVacante() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { sesion, perfil } = useAuth()
@@ -332,3 +332,5 @@ export default function DetalleVacante() {
     </div>
   )
 }
+
+export default DetalleVacante
