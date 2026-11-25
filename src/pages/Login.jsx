@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import Boton from '../components/Boton'
 import MensajeEstado from '../components/MensajeEstado'
 
-export default function Login() {
+function Login() {
   const [correo, setCorreo] = useState('')
   const [contrasena, setContrasena] = useState('')
   const [mensaje, setMensaje] = useState('')
@@ -114,3 +114,5 @@ export default function Login() {
     </div>
   )
 }
+
+export default Login
