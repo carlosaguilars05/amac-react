@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
@@ -18,48 +18,44 @@ function SolicitudesRecibidas() {
   const [mensaje, setMensaje] = useState('')
   const [actualizandoId, setActualizandoId] = useState(null)
 
-  const cargarDatos = useCallback(async () => {
-    if (!sesion?.user?.id || !id) return
-
+  async function cargarDatos() {
     setCargando(true)
     setError('')
 
-    const [resVacante, resSolicitudes] = await Promise.all([
-      supabase
-        .from('vacantes')
-        .select('id, titulo, estado')
-        .eq('id', id)
-        .eq('empresa_id', sesion.user.id)
-        .single(),
-      supabase
-        .from('solicitudes')
-        .select(
-          'id, estatus, creada_en, actualizado_en, vacante:vacantes(titulo), candidato:perfiles(nombre, edad, colonia, experiencia, telefono)'
-        )
-        .eq('vacante_id', id)
-        .neq('estatus', 'Cancelada')
-        .order('creada_en', { ascending: false }),
-    ])
+    const { data: datosVacante, error: errorVacante } = await supabase
+      .from('vacantes')
+      .select('id, titulo, estado')
+      .eq('id', id)
+      .eq('empresa_id', sesion.user.id)
+      .single()
 
-    if (resVacante.error || !resVacante.data) {
+    if (errorVacante) {
       setError('No encontramos esta vacante o no tienes permiso para ver sus solicitudes.')
-      setVacante(null)
-      setSolicitudes([])
-    } else {
-      setVacante(resVacante.data)
-      if (resSolicitudes.error) {
-        setError('No pudimos cargar las solicitudes recibidas.')
-      } else {
-        setSolicitudes(resSolicitudes.data || [])
-      }
+      setCargando(false)
+      return
     }
+    setVacante(datosVacante)
 
+    const { data, error: errorSolicitudes } = await supabase
+      .from('solicitudes')
+      .select(
+        'id, estatus, creada_en, actualizado_en, candidato:perfiles(nombre, edad, colonia, experiencia, telefono)'
+      )
+      .eq('vacante_id', id)
+      .neq('estatus', 'Cancelada')
+      .order('creada_en', { ascending: false })
+
+    if (errorSolicitudes) {
+      setError('No pudimos cargar las solicitudes recibidas.')
+    } else {
+      setSolicitudes(data)
+    }
     setCargando(false)
-  }, [id, sesion?.user?.id])
+  }
 
   useEffect(() => {
     cargarDatos()
-  }, [cargarDatos])
+  }, [id, sesion])
 
   async function cambiarEstatus(solicitud, nuevoEstatus) {
     setActualizandoId(solicitud.id)
@@ -70,36 +66,29 @@ function SolicitudesRecibidas() {
       .from('solicitudes')
       .update({ estatus: nuevoEstatus })
       .eq('id', solicitud.id)
-      .select('id, estatus, actualizado_en')
+      .select()
 
     setActualizandoId(null)
 
-    if (errorUpdate || !data || data.length === 0) {
-      setError(
-        'No se pudo actualizar el estatus. Es posible que el candidato haya cancelado la solicitud.'
-      )
-      await cargarDatos()
-      return
+    if (errorUpdate || data.length === 0) {
+      setError('No se pudo actualizar el estatus. Es posible que el candidato haya cancelado la solicitud.')
+    } else {
+      setMensaje(`La solicitud de ${solicitud.candidato.nombre} cambió a ${nuevoEstatus}.`)
     }
-
-    setMensaje(
-      `La solicitud de ${solicitud.candidato?.nombre || 'candidato'} cambió a "${nuevoEstatus}".`
-    )
-    await cargarDatos()
+    cargarDatos()
   }
 
   return (
     <div className="contenedor contenedor-angosto">
       <Link className="enlace-volver" to="/empresa/vacantes">
-        &larr; Volver a mis vacantes
+        ← Volver a mis vacantes
       </Link>
 
       <div className="encabezado-pagina">
         <h1>Solicitudes recibidas</h1>
         {vacante && (
           <p className="subtitulo">
-            Vacante: <strong>{vacante.titulo}</strong>{' '}
-            <EtiquetaEstatus estatus={vacante.estado} />
+            Vacante: <strong>{vacante.titulo}</strong> <EtiquetaEstatus estatus={vacante.estado} />
           </p>
         )}
       </div>
@@ -107,7 +96,7 @@ function SolicitudesRecibidas() {
       <MensajeEstado tipo="error">{error}</MensajeEstado>
       <MensajeEstado tipo="exito">{mensaje}</MensajeEstado>
 
-      {cargando && <p role="status">Cargando solicitudes…</p>}
+      {cargando && <p>Cargando solicitudes…</p>}
 
       {!cargando && vacante && solicitudes.length === 0 && (
         <div className="estado-vacio">
@@ -124,37 +113,28 @@ function SolicitudesRecibidas() {
             return (
               <article className="tarjeta" key={solicitud.id}>
                 <div className="encabezado-empresa">
-                  <h2>{candidato?.nombre || 'Candidato'}</h2>
+                  <h2>{candidato.nombre}</h2>
                   <EtiquetaEstatus estatus={solicitud.estatus} />
                 </div>
 
                 <p>
-                  <strong>Edad:</strong>{' '}
-                  {candidato?.edad ? `${candidato.edad} años` : 'No especificada'}{' '}
-                  · <strong>Colonia:</strong>{' '}
-                  {candidato?.colonia || 'No especificada'}
+                  <strong>Edad:</strong> {candidato.edad} años · <strong>Colonia:</strong> {candidato.colonia}
                 </p>
 
-                {candidato?.telefono && (
+                {candidato.telefono && (
                   <p>
-                    <strong>Teléfono:</strong>{' '}
-                    <a href={`tel:${limpiarTelefono(candidato.telefono)}`}>
-                      {candidato.telefono}
-                    </a>
+                    <strong>Teléfono:</strong> <a href={`tel:${limpiarTelefono(candidato.telefono)}`}>{candidato.telefono}</a>
                   </p>
                 )}
 
                 <p>
-                  <strong>Experiencia:</strong>{' '}
-                  {candidato?.experiencia || 'Sin descripción registrada'}
+                  <strong>Experiencia:</strong> {candidato.experiencia}
                 </p>
 
-                <p className="tarjeta-meta">
-                  Postulación: {formatearFecha(solicitud.creada_en)}
-                  {solicitud.actualizado_en &&
-                    solicitud.estatus !== 'Enviada' &&
-                    ` · Último cambio: ${formatearFecha(solicitud.actualizado_en)}`}
-                </p>
+                <p className="tarjeta-meta">Postulación: {formatearFecha(solicitud.creada_en)}</p>
+                {solicitud.estatus !== 'Enviada' && (
+                  <p className="tarjeta-meta">Último cambio: {formatearFecha(solicitud.actualizado_en)}</p>
+                )}
 
                 <div className="acciones-fila">
                   <Boton

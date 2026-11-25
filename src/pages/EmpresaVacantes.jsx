@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 import Boton from '../components/Boton'
@@ -9,17 +9,14 @@ import { formatearFecha } from '../lib/constantes'
 
 function EmpresaVacantes() {
   const { sesion, perfil } = useAuth()
-  const location = useLocation()
 
   const [vacantes, setVacantes] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
-  const [mensaje, setMensaje] = useState(location.state?.mensaje || '')
+  const [mensaje, setMensaje] = useState('')
   const [actualizandoId, setActualizandoId] = useState(null)
 
-  const cargarVacantes = useCallback(async () => {
-    if (!sesion?.user?.id) return
-
+  async function cargarVacantes() {
     setCargando(true)
     setError('')
 
@@ -30,17 +27,16 @@ function EmpresaVacantes() {
       .order('creada_en', { ascending: false })
 
     if (errorCarga) {
-      console.error('Error al cargar vacantes de empresa:', errorCarga.message)
       setError('No pudimos cargar tus vacantes. Intenta de nuevo.')
     } else {
-      setVacantes(data || [])
+      setVacantes(data)
     }
     setCargando(false)
-  }, [sesion?.user?.id])
+  }
 
   useEffect(() => {
     cargarVacantes()
-  }, [cargarVacantes])
+  }, [sesion])
 
   async function cambiarEstado(vacante, nuevoEstado) {
     if (nuevoEstado === 'cerrada') {
@@ -58,7 +54,6 @@ function EmpresaVacantes() {
       .from('vacantes')
       .update({ estado: nuevoEstado })
       .eq('id', vacante.id)
-      .eq('empresa_id', sesion.user.id)
 
     setActualizandoId(null)
 
@@ -67,13 +62,8 @@ function EmpresaVacantes() {
       return
     }
 
-    const etiquetas = {
-      activa: 'reactivada y visible en el listado público',
-      pausada: 'pausada y oculta del listado público',
-      cerrada: 'cerrada',
-    }
-    setMensaje(`La vacante "${vacante.titulo}" fue ${etiquetas[nuevoEstado]}.`)
-    await cargarVacantes()
+    setMensaje(`La vacante "${vacante.titulo}" ahora está ${nuevoEstado}.`)
+    cargarVacantes()
   }
 
   return (
@@ -81,7 +71,7 @@ function EmpresaVacantes() {
       <div className="encabezado-pagina encabezado-empresa">
         <div>
           <h1>Mis vacantes</h1>
-          <p className="subtitulo">{perfil?.nombre}</p>
+          <p className="subtitulo">{perfil.nombre}</p>
         </div>
         <div className="acciones">
           <Boton variante="primario" to="/empresa/publicar">
@@ -93,7 +83,7 @@ function EmpresaVacantes() {
       <MensajeEstado tipo="error">{error}</MensajeEstado>
       <MensajeEstado tipo="exito">{mensaje}</MensajeEstado>
 
-      {cargando && <p role="status">Cargando tus vacantes…</p>}
+      {cargando && <p>Cargando tus vacantes…</p>}
 
       {!cargando && vacantes.length === 0 && (
         <div className="estado-vacio">
@@ -107,7 +97,7 @@ function EmpresaVacantes() {
       {!cargando && vacantes.length > 0 && (
         <div className="lista-tarjetas">
           {vacantes.map((vacante) => {
-            const totalSolicitudes = (vacante.solicitudes || []).filter(
+            const totalSolicitudes = vacante.solicitudes.filter(
               (s) => s.estatus !== 'Cancelada'
             ).length
             const ocupada = actualizandoId === vacante.id
@@ -119,26 +109,17 @@ function EmpresaVacantes() {
                     <Link to={`/vacantes/${vacante.id}`}>{vacante.titulo}</Link>
                   </h2>
                   <p>Publicada el {formatearFecha(vacante.creada_en)}</p>
-                  <p>
-                    {totalSolicitudes}{' '}
-                    {totalSolicitudes === 1 ? 'solicitud' : 'solicitudes'}
-                  </p>
+                  <p>Solicitudes: {totalSolicitudes}</p>
                   <EtiquetaEstatus estatus={vacante.estado} />
                 </div>
 
                 <div className="acciones-fila">
-                  <Boton
-                    variante="primario"
-                    to={`/empresa/vacantes/${vacante.id}/solicitudes`}
-                  >
+                  <Boton variante="primario" to={`/empresa/vacantes/${vacante.id}/solicitudes`}>
                     Ver solicitudes
                   </Boton>
 
                   {vacante.estado !== 'cerrada' && (
-                    <Boton
-                      variante="secundario"
-                      to={`/empresa/vacantes/${vacante.id}/editar`}
-                    >
+                    <Boton variante="secundario" to={`/empresa/vacantes/${vacante.id}/editar`}>
                       Editar
                     </Boton>
                   )}

@@ -8,7 +8,6 @@ import { CATEGORIAS, HORARIOS } from '../lib/constantes'
 
 function PublicarVacante() {
   const { id } = useParams()
-  const esEdicion = Boolean(id)
   const navigate = useNavigate()
   const { sesion, perfil } = useAuth()
 
@@ -23,63 +22,45 @@ function PublicarVacante() {
   const [aceptaTelefono, setAceptaTelefono] = useState(false)
   const [telefonoContacto, setTelefonoContacto] = useState('')
 
-  const [cargando, setCargando] = useState(esEdicion)
   const [enviando, setEnviando] = useState(false)
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (!esEdicion || !sesion?.user?.id) return
+    if (!id) return
 
-    let activo = true
     async function cargarVacante() {
-      setCargando(true)
       const { data, error: errorCarga } = await supabase
         .from('vacantes')
         .select('*')
         .eq('id', id)
-        .eq('empresa_id', sesion.user.id)
         .single()
 
-      if (!activo) return
-
-      if (errorCarga || !data) {
+      if (errorCarga) {
         setError('No encontramos la vacante o no tienes permiso para editarla.')
-      } else {
-        setTitulo(data.titulo || '')
-        setSueldo(String(data.sueldo ?? ''))
-        setUbicacion(data.ubicacion || '')
-        setHorario(data.horario || '')
-        setCategoria(data.categoria || '')
-        setDescripcion(data.descripcion || '')
-        setRequisitos(data.requisitos || '')
-        setPrestaciones(data.prestaciones || '')
-        setAceptaTelefono(Boolean(data.telefono_contacto))
-        setTelefonoContacto(data.telefono_contacto || '')
+        return
       }
-      setCargando(false)
+
+      setTitulo(data.titulo)
+      setSueldo(data.sueldo)
+      setUbicacion(data.ubicacion)
+      setHorario(data.horario)
+      setCategoria(data.categoria)
+      setDescripcion(data.descripcion)
+      setRequisitos(data.requisitos)
+      setPrestaciones(data.prestaciones)
+      if (data.telefono_contacto) {
+        setAceptaTelefono(true)
+        setTelefonoContacto(data.telefono_contacto)
+      }
     }
 
     cargarVacante()
-    return () => {
-      activo = false
-    }
-  }, [esEdicion, id, sesion?.user?.id])
-
-  function manejarToggleTelefono(marcado) {
-    setAceptaTelefono(marcado)
-    if (marcado && !telefonoContacto && perfil?.telefono) {
-      setTelefonoContacto(perfil.telefono)
-    }
-    if (!marcado) {
-      setTelefonoContacto('')
-    }
-  }
+  }, [id])
 
   async function manejarEnvio(e) {
     e.preventDefault()
     setError('')
 
-    const sueldoNumero = Number(sueldo)
     if (
       !titulo.trim() ||
       !ubicacion.trim() ||
@@ -93,22 +74,19 @@ function PublicarVacante() {
       return
     }
 
-    if (Number.isNaN(sueldoNumero) || sueldoNumero <= 0) {
+    if (!sueldo || Number(sueldo) <= 0) {
       setError('El sueldo mensual debe ser un número mayor a 0.')
       return
     }
 
-    // RF-019: el teléfono solo se pide y guarda si la empresa elige postulaciones por teléfono
     if (aceptaTelefono && !telefonoContacto.trim()) {
-      setError(
-        'Ingresa el teléfono de contacto o desmarca la opción de postulaciones por teléfono.'
-      )
+      setError('Ingresa el teléfono de contacto o desmarca la opción de postulaciones por teléfono.')
       return
     }
 
-    const datosVacante = {
+    const datos = {
       titulo: titulo.trim(),
-      sueldo: sueldoNumero,
+      sueldo: Number(sueldo),
       ubicacion: ubicacion.trim(),
       horario,
       categoria,
@@ -119,65 +97,39 @@ function PublicarVacante() {
     }
 
     setEnviando(true)
-    let errorGuardado = null
-
-    if (esEdicion) {
-      const res = await supabase
-        .from('vacantes')
-        .update(datosVacante)
-        .eq('id', id)
-        .eq('empresa_id', sesion.user.id)
-      errorGuardado = res.error
+    let resultado
+    if (id) {
+      resultado = await supabase.from('vacantes').update(datos).eq('id', id)
     } else {
-      const res = await supabase.from('vacantes').insert({
-        ...datosVacante,
-        empresa_id: sesion.user.id,
-      })
-      errorGuardado = res.error
+      datos.empresa_id = sesion.user.id
+      resultado = await supabase.from('vacantes').insert(datos)
     }
-
     setEnviando(false)
 
-    if (errorGuardado) {
-      console.error('Error al guardar vacante:', errorGuardado.message)
+    if (resultado.error) {
       setError('No se pudo guardar la vacante. Revisa los datos e intenta de nuevo.')
       return
     }
 
-    navigate('/empresa/vacantes', {
-      replace: true,
-      state: {
-        mensaje: esEdicion
-          ? 'La vacante fue actualizada correctamente.'
-          : '¡Vacante publicada correctamente! Ya aparece en el listado público.',
-      },
-    })
-  }
-
-  if (cargando) {
-    return (
-      <div className="contenedor contenedor-angosto">
-        <p role="status">Cargando vacante…</p>
-      </div>
-    )
+    navigate('/empresa/vacantes')
   }
 
   return (
     <div className="contenedor contenedor-angosto">
       <Link className="enlace-volver" to="/empresa/vacantes">
-        &larr; Volver a mis vacantes
+        ← Volver a mis vacantes
       </Link>
 
       <div className="encabezado-pagina">
-        <h1>{esEdicion ? 'Editar vacante' : 'Publicar vacante'}</h1>
+        <h1>{id ? 'Editar vacante' : 'Publicar vacante'}</h1>
         <p className="subtitulo">
-          {perfil?.nombre} · Los campos con * son obligatorios.
+          {perfil.nombre} · Los campos con * son obligatorios.
         </p>
       </div>
 
       <MensajeEstado tipo="error">{error}</MensajeEstado>
 
-      <form onSubmit={manejarEnvio} noValidate>
+      <form onSubmit={manejarEnvio}>
         <fieldset>
           <legend>1. Información general</legend>
           <div className="rejilla-campos">
@@ -201,7 +153,6 @@ function PublicarVacante() {
                 name="sueldo"
                 placeholder="Ejemplo: 8500"
                 min="1"
-                step="0.01"
                 value={sueldo}
                 onChange={(e) => setSueldo(e.target.value)}
                 required
@@ -308,7 +259,7 @@ function PublicarVacante() {
               type="checkbox"
               name="acepta-telefono"
               checked={aceptaTelefono}
-              onChange={(e) => manejarToggleTelefono(e.target.checked)}
+              onChange={(e) => setAceptaTelefono(e.target.checked)}
             />
             También recibir postulaciones por llamada telefónica
           </label>
@@ -326,7 +277,7 @@ function PublicarVacante() {
                 required
               />
               <p className="campo-ayuda">
-                Se mostrará un botón &quot;Llamar&quot; en el detalle de la vacante.
+                Se mostrará un botón Llamar en el detalle de la vacante.
               </p>
             </div>
           )}
@@ -334,11 +285,7 @@ function PublicarVacante() {
 
         <div className="acciones">
           <Boton variante="primario" type="submit" disabled={enviando}>
-            {enviando
-              ? 'Guardando…'
-              : esEdicion
-              ? 'Guardar cambios'
-              : 'Publicar vacante'}
+            {id ? 'Guardar cambios' : 'Publicar vacante'}
           </Boton>
           <Boton variante="secundario" to="/empresa/vacantes">
             Cancelar

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import Boton from '../components/Boton'
 import EtiquetaEstatus from '../components/EtiquetaEstatus'
@@ -7,13 +7,13 @@ import { formatearFecha, limpiarTelefono } from '../lib/constantes'
 
 function PanelAdmin() {
   const [candidatos, setCandidatos] = useState([])
-  const [filtro, setFiltro] = useState('todos') // 'todos' | 'pendientes' | 'aprobados'
+  const [filtro, setFiltro] = useState('todos')
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState('')
   const [mensaje, setMensaje] = useState('')
   const [procesandoId, setProcesandoId] = useState(null)
 
-  const cargarCandidatos = useCallback(async () => {
+  async function cargarCandidatos() {
     setCargando(true)
     setError('')
 
@@ -25,18 +25,17 @@ function PanelAdmin() {
       .order('creado_en', { ascending: false })
 
     if (errorCarga) {
-      console.error('Error al cargar candidatos:', errorCarga.message)
       setError('No pudimos cargar la lista de candidatos.')
     } else {
-      setCandidatos(data || [])
+      setCandidatos(data)
     }
 
     setCargando(false)
-  }, [])
+  }
 
   useEffect(() => {
     cargarCandidatos()
-  }, [cargarCandidatos])
+  }, [])
 
   async function cambiarAprobacion(candidato, nuevoEstado) {
     if (!nuevoEstado) {
@@ -50,7 +49,6 @@ function PanelAdmin() {
     setError('')
     setMensaje('')
 
-    // RPC seguro (security definer) que verifica public.mi_rol() = 'admin' en PostgreSQL
     const { error: errorRpc } = await supabase.rpc('aprobar_candidato', {
       cid: candidato.id,
       nuevo_estado: nuevoEstado,
@@ -59,7 +57,6 @@ function PanelAdmin() {
     setProcesandoId(null)
 
     if (errorRpc) {
-      console.error('Error al cambiar aprobación:', errorRpc.message)
       setError('No se pudo actualizar el estado del candidato.')
       return
     }
@@ -91,7 +88,7 @@ function PanelAdmin() {
         </p>
       </div>
 
-      <div className="acciones-fila" role="group" aria-label="Filtrar candidatos">
+      <div className="acciones-fila">
         <Boton
           variante={filtro === 'todos' ? 'primario' : 'secundario'}
           chico
@@ -120,7 +117,7 @@ function PanelAdmin() {
         <MensajeEstado tipo="exito">{mensaje}</MensajeEstado>
       </div>
 
-      {cargando && <p role="status">Cargando candidatos…</p>}
+      {cargando && <p>Cargando candidatos…</p>}
 
       {!cargando && listaFiltrada.length === 0 && (
         <div className="estado-vacio seccion">
@@ -143,24 +140,19 @@ function PanelAdmin() {
                 </div>
 
                 <p>
-                  <strong>Edad:</strong>{' '}
-                  {candidato.edad ? `${candidato.edad} años` : 'No registrada'} ·{' '}
-                  <strong>Colonia:</strong>{' '}
-                  {candidato.colonia || 'No registrada'}
+                  <strong>Edad:</strong> {candidato.edad ? `${candidato.edad} años` : 'No registrada'} · <strong>Colonia:</strong> {candidato.colonia || 'No registrada'}
                 </p>
 
                 {candidato.telefono && (
                   <p>
-                    <strong>Teléfono:</strong>{' '}
-                    <a href={`tel:${limpiarTelefono(candidato.telefono)}`}>
+                    <strong>Teléfono:</strong> <a href={`tel:${limpiarTelefono(candidato.telefono)}`}>
                       {candidato.telefono}
                     </a>
                   </p>
                 )}
 
                 <p>
-                  <strong>Experiencia:</strong>{' '}
-                  {candidato.experiencia || 'Sin descripción'}
+                  <strong>Experiencia:</strong> {candidato.experiencia || 'Sin descripción'}
                 </p>
 
                 <p className="tarjeta-meta">
