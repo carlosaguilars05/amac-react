@@ -1,68 +1,33 @@
-import { createContext, useCallback, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
 const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
-  const [sesion, setSesion] = useState(undefined) // undefined = todavía no sabemos
+  const [sesion, setSesion] = useState(undefined)
   const [perfil, setPerfil] = useState(null)
   const [cargando, setCargando] = useState(true)
 
-  // 1) Escuchar la sesión: al abrir la página, al iniciar y al cerrar sesión
   useEffect(() => {
-    if (!supabase) {
-      setSesion(null)
-      setCargando(false)
-      return
-    }
+    supabase.auth.getSession().then(({ data }) => setSesion(data.session))
 
-    let activo = true
-
-    supabase.auth.getSession().then(({ data }) => {
-      if (activo) setSesion(data.session ?? null)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evento, nuevaSesion) => {
+      setSesion(nuevaSesion)
     })
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_evento, nuevaSesion) => {
-      if (activo) setSesion(nuevaSesion ?? null)
-    })
-
-    return () => {
-      activo = false
-      subscription.unsubscribe()
-    }
+    return () => subscription.unsubscribe()
   }, [])
 
-  const usuarioId = sesion?.user?.id ?? null
   const sesionLista = sesion !== undefined
+  const usuarioId = sesion?.user.id
 
-  // Función reutilizable para consultar o recargar el perfil desde PostgreSQL
-  const cargarPerfil = useCallback(async (id) => {
-    if (!supabase || !id) {
-      setPerfil(null)
-      setCargando(false)
-      return null
-    }
-
+  async function cargarPerfil() {
     setCargando(true)
-    const { data, error } = await supabase
-      .from('perfiles')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (error) {
-      console.error('Error al cargar el perfil:', error.message)
-      setPerfil(null)
-    } else {
-      setPerfil(data)
-    }
+    const { data } = await supabase.from('perfiles').select('*').eq('id', usuarioId).single()
+    setPerfil(data)
     setCargando(false)
-    return data ?? null
-  }, [])
+  }
 
-  // 2) Cada vez que cambia la sesión, cargar el perfil (rol, nombre, aprobado...)
   useEffect(() => {
     if (!sesionLista) return
     if (!usuarioId) {
@@ -70,29 +35,17 @@ export function AuthProvider({ children }) {
       setCargando(false)
       return
     }
-    cargarPerfil(usuarioId)
-  }, [sesionLista, usuarioId, cargarPerfil])
+    cargarPerfil()
+  }, [sesionLista, usuarioId])
 
-  const recargarPerfil = useCallback(async () => {
-    if (!usuarioId) return null
-    return cargarPerfil(usuarioId)
-  }, [usuarioId, cargarPerfil])
-
-  const cerrarSesion = useCallback(async () => {
-    if (!supabase) return
+  async function cerrarSesion() {
     await supabase.auth.signOut()
     setPerfil(null)
-  }, [])
+  }
 
   return (
     <AuthContext.Provider
-      value={{
-        sesion,
-        perfil,
-        cargando,
-        recargarPerfil,
-        cerrarSesion,
-      }}
+      value={{ sesion, perfil, cargando, recargarPerfil: cargarPerfil, cerrarSesion }}
     >
       {children}
     </AuthContext.Provider>
