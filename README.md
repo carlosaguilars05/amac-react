@@ -4,7 +4,7 @@ Proyecto final (Entrega 3) de Desarrollo de Aplicaciones Web. Es la bolsa de tra
 
 - Sitio: https://amac-react-ten.vercel.app/
 - Video: https://drive.google.com/file/d/1GoxQbl-DdqklELhnXzoaPTTpxVFhjhPc/view?usp=sharing
-- Diapositivas: (pendiente)
+- Diapositivas: https://canva.link/xv2jo7s37owm1sk
 
 ## Integrantes
 
