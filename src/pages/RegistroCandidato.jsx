@@ -17,7 +17,6 @@ function RegistroCandidato() {
   const [aceptaPrivacidad, setAceptaPrivacidad] = useState(false)
 
   const [error, setError] = useState('')
-  const [exito, setExito] = useState('')
   const [enviando, setEnviando] = useState(false)
 
   const navigate = useNavigate()
@@ -25,14 +24,13 @@ function RegistroCandidato() {
   async function manejarEnvio(e) {
     e.preventDefault()
     setError('')
-    setExito('')
 
     const edadNumero = Number(edad)
     if (!nombre.trim() || !correo.trim() || !telefono.trim() || !colonia.trim() || !experiencia.trim()) {
       setError('Por favor completa todos los campos obligatorios marcados con *.')
       return
     }
-    if (!Number.isInteger(edadNumero) || edadNumero < 18 || edadNumero > 120) {
+    if (!edad || edadNumero < 18 || edadNumero > 120) {
       setError('Ingresa una edad válida (entre 18 y 120 años).')
       return
     }
@@ -58,7 +56,7 @@ function RegistroCandidato() {
           rol: 'candidato',
           nombre: nombre.trim(),
           telefono: telefono.trim(),
-          edad: String(edadNumero),
+          edad,
           colonia: colonia.trim(),
           experiencia: experiencia.trim(),
         },
@@ -68,20 +66,11 @@ function RegistroCandidato() {
     setEnviando(false)
 
     if (errorRegistro) {
-      if (errorRegistro.message.toLowerCase().includes('already registered')) {
-        setError('Ya existe una cuenta registrada con ese correo electrónico.')
-      } else {
-        setError('No se pudo crear tu cuenta. Revisa tus datos e intenta de nuevo.')
-      }
+      setError('No se pudo crear tu cuenta. Revisa tus datos o intenta con otro correo.')
       return
     }
 
-    setExito(
-      '¡Tu cuenta fue creada! AMAC revisará y aprobará tu registro. Mientras tanto ya puedes explorar las vacantes.'
-    )
-    setTimeout(() => {
-      navigate('/', { replace: true })
-    }, 1800)
+    navigate('/')
   }
 
   return (
@@ -92,9 +81,8 @@ function RegistroCandidato() {
       </p>
 
       <MensajeEstado tipo="error">{error}</MensajeEstado>
-      <MensajeEstado tipo="exito">{exito}</MensajeEstado>
 
-      <form onSubmit={manejarEnvio} noValidate>
+      <form onSubmit={manejarEnvio}>
         <fieldset>
           <legend>1. ¿Cómo te contactamos?</legend>
           <div className="rejilla-campos">
@@ -105,7 +93,6 @@ function RegistroCandidato() {
                 id="correo"
                 name="correo"
                 placeholder="ejemplo@correo.com"
-                autoComplete="email"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
                 required
@@ -118,7 +105,6 @@ function RegistroCandidato() {
                 id="telefono"
                 name="telefono"
                 placeholder="10 dígitos (ej. 81 1234 5678)"
-                autoComplete="tel"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
                 required
@@ -137,7 +123,6 @@ function RegistroCandidato() {
                 id="nombre"
                 name="nombre"
                 placeholder="Ejemplo: María López Hernández"
-                autoComplete="name"
                 value={nombre}
                 onChange={(e) => setNombre(e.target.value)}
                 required
@@ -197,8 +182,6 @@ function RegistroCandidato() {
                 id="contrasena"
                 name="contrasena"
                 placeholder="Mínimo 8 caracteres"
-                autoComplete="new-password"
-                minLength={8}
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
                 required
@@ -211,8 +194,6 @@ function RegistroCandidato() {
                 id="contrasena-repetir"
                 name="contrasena-repetir"
                 placeholder="Escríbela otra vez"
-                autoComplete="new-password"
-                minLength={8}
                 value={contrasenaRepetir}
                 onChange={(e) => setContrasenaRepetir(e.target.value)}
                 required

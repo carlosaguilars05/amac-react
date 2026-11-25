@@ -56,15 +56,11 @@ function RegistroEmpresa() {
     setEnviando(false)
 
     if (errorRegistro) {
-      if (errorRegistro.message.toLowerCase().includes('already registered')) {
-        setError('Ya existe una cuenta registrada con ese correo electrónico.')
-      } else {
-        setError('No se pudo registrar la empresa. Verifica los datos e intenta de nuevo.')
-      }
+      setError('No se pudo registrar la empresa. Revisa tus datos o intenta con otro correo.')
       return
     }
 
-    navigate('/empresa/vacantes', { replace: true })
+    navigate('/empresa/vacantes')
   }
 
   return (
@@ -77,7 +73,7 @@ function RegistroEmpresa() {
 
       <MensajeEstado tipo="error">{error}</MensajeEstado>
 
-      <form onSubmit={manejarEnvio} noValidate>
+      <form onSubmit={manejarEnvio}>
         <fieldset>
           <legend>1. Datos de la empresa</legend>
           <div className="rejilla-campos">
@@ -112,7 +108,6 @@ function RegistroEmpresa() {
                 id="telefono-empresa"
                 name="telefono"
                 placeholder="10 dígitos (ej. 81 1234 5678)"
-                autoComplete="tel"
                 value={telefono}
                 onChange={(e) => setTelefono(e.target.value)}
                 required
@@ -125,7 +120,6 @@ function RegistroEmpresa() {
                 id="correo-empresa"
                 name="correo"
                 placeholder="rh@empresa.com"
-                autoComplete="email"
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
                 required
@@ -144,8 +138,6 @@ function RegistroEmpresa() {
                 id="contrasena-empresa"
                 name="contrasena"
                 placeholder="Mínimo 8 caracteres"
-                autoComplete="new-password"
-                minLength={8}
                 value={contrasena}
                 onChange={(e) => setContrasena(e.target.value)}
                 required
@@ -160,8 +152,6 @@ function RegistroEmpresa() {
                 id="contrasena-empresa-repetir"
                 name="contrasena-repetir"
                 placeholder="Escríbela otra vez"
-                autoComplete="new-password"
-                minLength={8}
                 value={contrasenaRepetir}
                 onChange={(e) => setContrasenaRepetir(e.target.value)}
                 required

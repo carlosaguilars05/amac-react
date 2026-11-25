@@ -24,7 +24,7 @@ function MiPerfil() {
     if (!perfil) return
     setNombre(perfil.nombre || '')
     setTelefono(perfil.telefono || '')
-    setEdad(perfil.edad != null ? String(perfil.edad) : '')
+    setEdad(perfil.edad || '')
     setColonia(perfil.colonia || '')
     setExperiencia(perfil.experiencia || '')
     setGiro(perfil.giro || '')
@@ -40,7 +40,7 @@ function MiPerfil() {
       return
     }
 
-    let cambios = {
+    const cambios = {
       nombre: nombre.trim(),
       telefono: telefono.trim() || null,
     }
@@ -50,13 +50,10 @@ function MiPerfil() {
         setError('El giro de la empresa es obligatorio.')
         return
       }
-      cambios = {
-        ...cambios,
-        giro: giro.trim(),
-      }
+      cambios.giro = giro.trim()
     } else {
       const edadNumero = Number(edad)
-      if (!Number.isInteger(edadNumero) || edadNumero < 18 || edadNumero > 120) {
+      if (!edad || edadNumero < 18 || edadNumero > 120) {
         setError('Ingresa una edad válida (entre 18 y 120 años).')
         return
       }
@@ -64,12 +61,9 @@ function MiPerfil() {
         setError('La colonia es obligatoria.')
         return
       }
-      cambios = {
-        ...cambios,
-        edad: edadNumero,
-        colonia: colonia.trim(),
-        experiencia: experiencia.trim() || null,
-      }
+      cambios.edad = edadNumero
+      cambios.colonia = colonia.trim()
+      cambios.experiencia = experiencia.trim() || null
     }
 
     setGuardando(true)
@@ -81,7 +75,6 @@ function MiPerfil() {
     setGuardando(false)
 
     if (errorUpdate) {
-      console.error('Error al actualizar perfil:', errorUpdate.message)
       setError('No pudimos guardar los cambios de tu perfil.')
       return
     }
@@ -109,7 +102,7 @@ function MiPerfil() {
       <MensajeEstado tipo="error">{error}</MensajeEstado>
       <MensajeEstado tipo="exito">{exito}</MensajeEstado>
 
-      <form onSubmit={manejarGuardar} noValidate>
+      <form onSubmit={manejarGuardar}>
         <fieldset>
           <legend>Información de la cuenta</legend>
           <div className="rejilla-campos">
