@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom'
+import { Routes, Route } from 'react-router-dom'
 import Encabezado from './components/Encabezado'
 import Pie from './components/Pie'
 import RutaProtegida from './components/RutaProtegida'
@@ -21,9 +21,7 @@ function PaginaNoEncontrada() {
   return (
     <div className="contenedor contenedor-chico confirmacion">
       <h1>Página no encontrada</h1>
-      <p className="subtitulo">
-        La dirección que buscaste no existe en la bolsa de trabajo AMAC.
-      </p>
+      <p className="subtitulo">La dirección que buscaste no existe en la bolsa de trabajo AMAC.</p>
       <div className="acciones">
         <Boton variante="primario" to="/">
           Volver a vacantes
@@ -34,16 +32,10 @@ function PaginaNoEncontrada() {
 }
 
 function App() {
-  const { pathname } = useLocation()
-  const usaFondoAzul = pathname === '/login'
-
   return (
     <>
       <Encabezado />
-      <main
-        id="principal"
-        className={usaFondoAzul ? 'principal-azul' : 'principal'}
-      >
+      <main id="principal" className="principal">
         <Routes>
           <Route path="/" element={<ListadoVacantes />} />
           <Route path="/vacantes/:id" element={<DetalleVacante />} />
@@ -51,82 +43,43 @@ function App() {
           <Route path="/registro" element={<RegistroCandidato />} />
           <Route path="/registro-empresa" element={<RegistroEmpresa />} />
 
-          {/* Rutas protegidas de candidato */}
           <Route
             path="/confirmacion"
-            element={
-              <RutaProtegida rol="candidato">
-                <Confirmacion />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="candidato"><Confirmacion /></RutaProtegida>}
           />
           <Route
             path="/mis-solicitudes"
-            element={
-              <RutaProtegida rol="candidato">
-                <MisSolicitudes />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="candidato"><MisSolicitudes /></RutaProtegida>}
           />
           <Route
             path="/favoritos"
-            element={
-              <RutaProtegida rol="candidato">
-                <VacantesFavoritas />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="candidato"><VacantesFavoritas /></RutaProtegida>}
           />
 
-          {/* Rutas protegidas de empresa */}
           <Route
             path="/empresa/vacantes"
-            element={
-              <RutaProtegida rol="empresa">
-                <EmpresaVacantes />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="empresa"><EmpresaVacantes /></RutaProtegida>}
           />
           <Route
             path="/empresa/publicar"
-            element={
-              <RutaProtegida rol="empresa">
-                <PublicarVacante />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="empresa"><PublicarVacante /></RutaProtegida>}
           />
           <Route
             path="/empresa/vacantes/:id/editar"
-            element={
-              <RutaProtegida rol="empresa">
-                <PublicarVacante />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="empresa"><PublicarVacante /></RutaProtegida>}
           />
           <Route
             path="/empresa/vacantes/:id/solicitudes"
-            element={
-              <RutaProtegida rol="empresa">
-                <SolicitudesRecibidas />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="empresa"><SolicitudesRecibidas /></RutaProtegida>}
           />
 
-          {/* Rutas protegidas extra */}
           <Route
             path="/perfil"
-            element={
-              <RutaProtegida rol={['candidato', 'empresa']}>
-                <MiPerfil />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol={['candidato', 'empresa']}><MiPerfil /></RutaProtegida>}
           />
           <Route
             path="/admin"
-            element={
-              <RutaProtegida rol="admin">
-                <PanelAdmin />
-              </RutaProtegida>
-            }
+            element={<RutaProtegida rol="admin"><PanelAdmin /></RutaProtegida>}
           />
 
           <Route path="*" element={<PaginaNoEncontrada />} />

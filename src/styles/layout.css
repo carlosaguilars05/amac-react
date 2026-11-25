@@ -67,7 +67,7 @@
 }
 
 .menu a:hover,
-.menu .activo,
+.menu .active,
 .menu .menu-boton:hover {
   text-decoration: underline;
   text-decoration-color: var(--color-acento);
@@ -82,6 +82,7 @@
 .principal-azul {
   background-color: var(--color-azul-claro);
   padding: 3rem 0;
+  margin: calc(-1 * var(--espacio-l)) 0 -2.5rem 0;
 }
 
 .subtitulo {

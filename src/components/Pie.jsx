@@ -37,7 +37,7 @@ function Pie() {
           )}
           {perfil?.rol === 'admin' && <Link to="/admin">Panel AMAC</Link>}
         </div>
-        <p>&copy; 2026 AMAC</p>
+        <p>© 2026 AMAC</p>
       </div>
     </footer>
   )
