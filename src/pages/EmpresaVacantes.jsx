@@ -7,7 +7,7 @@ import EtiquetaEstatus from '../components/EtiquetaEstatus'
 import MensajeEstado from '../components/MensajeEstado'
 import { formatearFecha } from '../lib/constantes'
 
-export default function EmpresaVacantes() {
+function EmpresaVacantes() {
   const { sesion, perfil } = useAuth()
   const location = useLocation()
 
@@ -181,3 +181,5 @@ export default function EmpresaVacantes() {
     </div>
   )
 }
+
+export default EmpresaVacantes
