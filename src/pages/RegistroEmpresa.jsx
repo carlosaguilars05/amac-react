@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import Boton from '../components/Boton'
 import MensajeEstado from '../components/MensajeEstado'
 
-export default function RegistroEmpresa() {
+function RegistroEmpresa() {
   const [nombre, setNombre] = useState('')
   const [giro, setGiro] = useState('')
   const [telefono, setTelefono] = useState('')
@@ -194,3 +194,5 @@ export default function RegistroEmpresa() {
     </div>
   )
 }
+
+export default RegistroEmpresa
