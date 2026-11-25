@@ -5,7 +5,7 @@ import Boton from '../components/Boton'
 import MensajeEstado from '../components/MensajeEstado'
 import { CATEGORIAS, HORARIOS } from '../lib/constantes'
 
-export default function ListadoVacantes() {
+function ListadoVacantes() {
   const [vacantes, setVacantes] = useState([])
   const [busqueda, setBusqueda] = useState('')
   const [horariosSeleccionados, setHorariosSeleccionados] = useState([])
@@ -205,3 +205,5 @@ export default function ListadoVacantes() {
     </div>
   )
 }
+
+export default ListadoVacantes
