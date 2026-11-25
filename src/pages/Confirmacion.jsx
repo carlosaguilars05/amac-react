@@ -1,7 +1,7 @@
 import { useLocation } from 'react-router-dom'
 import Boton from '../components/Boton'
 
-export default function Confirmacion() {
+function Confirmacion() {
   const { state } = useLocation()
   const titulo = state?.titulo
   const empresa = state?.empresa || 'la empresa'
@@ -29,3 +29,5 @@ export default function Confirmacion() {
     </div>
   )
 }
+
+export default Confirmacion
