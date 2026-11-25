@@ -6,7 +6,7 @@ import Boton from '../components/Boton'
 import MensajeEstado from '../components/MensajeEstado'
 import { CATEGORIAS, HORARIOS } from '../lib/constantes'
 
-export default function PublicarVacante() {
+function PublicarVacante() {
   const { id } = useParams()
   const esEdicion = Boolean(id)
   const navigate = useNavigate()
@@ -348,3 +348,5 @@ export default function PublicarVacante() {
     </div>
   )
 }
+
+export default PublicarVacante
