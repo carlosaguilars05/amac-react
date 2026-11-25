@@ -5,7 +5,7 @@ import EtiquetaEstatus from '../components/EtiquetaEstatus'
 import MensajeEstado from '../components/MensajeEstado'
 import { formatearFecha, limpiarTelefono } from '../lib/constantes'
 
-export default function PanelAdmin() {
+function PanelAdmin() {
   const [candidatos, setCandidatos] = useState([])
   const [filtro, setFiltro] = useState('todos') // 'todos' | 'pendientes' | 'aprobados'
   const [cargando, setCargando] = useState(true)
@@ -194,3 +194,5 @@ export default function PanelAdmin() {
     </div>
   )
 }
+
+export default PanelAdmin
