@@ -5,7 +5,7 @@ import Boton from '../components/Boton'
 import EtiquetaEstatus from '../components/EtiquetaEstatus'
 import MensajeEstado from '../components/MensajeEstado'
 
-export default function MiPerfil() {
+function MiPerfil() {
   const { sesion, perfil, recargarPerfil } = useAuth()
   const esEmpresa = perfil?.rol === 'empresa'
 
@@ -204,3 +204,5 @@ export default function MiPerfil() {
     </div>
   )
 }
+
+export default MiPerfil
