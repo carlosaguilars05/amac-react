@@ -7,7 +7,7 @@ import EtiquetaEstatus from '../components/EtiquetaEstatus'
 import MensajeEstado from '../components/MensajeEstado'
 import { formatearFecha } from '../lib/constantes'
 
-export default function MisSolicitudes() {
+function MisSolicitudes() {
   const { sesion } = useAuth()
   const [solicitudes, setSolicitudes] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -155,3 +155,5 @@ export default function MisSolicitudes() {
     </div>
   )
 }
+
+export default MisSolicitudes
