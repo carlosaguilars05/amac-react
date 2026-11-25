@@ -3,8 +3,9 @@
 Proyecto final (Entrega 3) de Desarrollo de Aplicaciones Web. Es la bolsa de trabajo de AMAC para personas adultas mayores, ahora hecha en React, con Supabase como base de datos y publicada en Vercel.
 
 - Sitio: https://amac-react-ten.vercel.app/
-- Video: (pendiente)
-- Diapositivas: (pendiente)
+- Repositorio: https://github.com/carlosaguilars05/amac-react
+- Video: https://drive.google.com/file/d/1GoxQbl-DdqklELhnXzoaPTTpxVFhjhPc/view?usp=sharing
+- Diapositivas: Adjuntas en la entrega de Blackboard (`AMAC_Presentacion_Final.pptx`)
 
 ## Integrantes
 
@@ -81,27 +82,27 @@ Todas las tablas tienen RLS activado.
 
 | # | RF | Funcionalidad | Estado |
 |---|---|---|---|
-| 1 | RF-001 | Listado de vacantes activas | Completo |
-| 2 | RF-002, RF-007 | Búsqueda y filtros por horario y categoría | Completo |
-| 3 | RF-003, RF-051 | Detalle de vacante con botón Llamar | Completo |
-| 4 | RF-011, RF-012, RF-013 | Registro de candidato | Completo |
-| 5 | RF-008, RF-009 | Inicio y cierre de sesión | Completo |
-| 6 | RF-004, RF-054 | Postularme | Completo |
-| 7 | RF-005, RF-006 | Mis solicitudes y cancelar | Completo |
-| 8 | RF-015 | Registro de empresa | Completo |
-| 9 | RF-019 | Publicar y editar vacante | Completo |
-| 10 | RF-020, RF-021 | Mis vacantes (pausar, reactivar, cerrar) | Completo |
-| 11 | RF-022, RF-024 | Solicitudes recibidas y cambio de estatus | Completo |
-| 12 | RF-010 | Rutas protegidas por rol | Completo |
+| 1 | RF-001 | Listado de vacantes activas | ✅ Completo |
+| 2 | RF-002, RF-007 | Búsqueda y filtros por horario y categoría | ✅ Completo |
+| 3 | RF-003, RF-051 | Detalle de vacante con botón Llamar | ✅ Completo |
+| 4 | RF-011, RF-012, RF-013 | Registro de candidato | ✅ Completo |
+| 5 | RF-008, RF-009 | Inicio y cierre de sesión | ✅ Completo |
+| 6 | RF-004, RF-054 | Postularme | ✅ Completo |
+| 7 | RF-005, RF-006 | Mis solicitudes y cancelar | ✅ Completo |
+| 8 | RF-015 | Registro de empresa | ✅ Completo |
+| 9 | RF-019 | Publicar y editar vacante | ✅ Completo |
+| 10 | RF-020, RF-021 | Mis vacantes (pausar, reactivar, cerrar) | ✅ Completo |
+| 11 | RF-022, RF-024 | Solicitudes recibidas y cambio de estatus | ✅ Completo |
+| 12 | RF-010 | Rutas protegidas por rol | ✅ Completo |
 
 Extras:
 
 | RF | Funcionalidad | Estado |
 |---|---|---|
-| RF-054 | Panel de admin para aprobar candidatos | Completo |
-| RF-014, RF-017 | Editar perfil | Completo |
-| RF-041 | Vacantes favoritas | Completo |
-| RF-024 | Fecha de cambio de estatus | Completo |
-| RF-016 | Logo de empresa con Storage | Pendiente |
-| RF-029 | Recuperar contraseña | Pendiente |
-| RF-055 | Proceso de selección por etapas | Pendiente |
+| RF-054 | Panel de admin para aprobar candidatos | ✅ Completo |
+| RF-014, RF-017 | Editar perfil | ✅ Completo |
+| RF-041 | Vacantes favoritas | ✅ Completo |
+| RF-024 | Fecha de cambio de estatus | ✅ Completo |
+| RF-016 | Logo de empresa con Storage | ❌ Pendiente |
+| RF-029 | Recuperar contraseña | ❌ Pendiente |
+| RF-055 | Proceso de selección por etapas | ❌ Pendiente |
