@@ -7,7 +7,7 @@ import EtiquetaEstatus from '../components/EtiquetaEstatus'
 import MensajeEstado from '../components/MensajeEstado'
 import { formatearFecha, limpiarTelefono } from '../lib/constantes'
 
-export default function SolicitudesRecibidas() {
+function SolicitudesRecibidas() {
   const { id } = useParams()
   const { sesion } = useAuth()
 
@@ -187,3 +187,5 @@ export default function SolicitudesRecibidas() {
     </div>
   )
 }
+
+export default SolicitudesRecibidas
