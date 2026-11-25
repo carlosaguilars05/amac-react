@@ -25,8 +25,6 @@ function DetalleVacante() {
   const [guardandoFavorito, setGuardandoFavorito] = useState(false)
 
   useEffect(() => {
-    let activo = true
-
     async function cargarDetalle() {
       setCargando(true)
       setErrorCarga('')
@@ -37,9 +35,7 @@ function DetalleVacante() {
         .eq('id', id)
         .single()
 
-      if (!activo) return
-
-      if (error || !data) {
+      if (error) {
         setErrorCarga('No encontramos la vacante solicitada o ya no está disponible.')
         setVacante(null)
       } else {
@@ -49,12 +45,8 @@ function DetalleVacante() {
     }
 
     cargarDetalle()
-    return () => {
-      activo = false
-    }
   }, [id])
 
-  // Consultar si el candidato ya aplicó o guardó esta vacante como favorita
   useEffect(() => {
     if (!sesion?.user?.id || perfil?.rol !== 'candidato' || !vacante?.id) {
       setSolicitudExistente(null)
@@ -62,33 +54,24 @@ function DetalleVacante() {
       return
     }
 
-    let activo = true
-
     async function cargarEstadoCandidato() {
-      const [resSolicitud, resFavorito] = await Promise.all([
-        supabase
-          .from('solicitudes')
-          .select('id, estatus')
-          .eq('vacante_id', vacante.id)
-          .eq('candidato_id', sesion.user.id)
-          .maybeSingle(),
-        supabase
-          .from('favoritos')
-          .select('id')
-          .eq('vacante_id', vacante.id)
-          .eq('candidato_id', sesion.user.id)
-          .maybeSingle(),
-      ])
+      const { data: solicitudes } = await supabase
+        .from('solicitudes')
+        .select('id, estatus')
+        .eq('vacante_id', vacante.id)
+        .eq('candidato_id', sesion.user.id)
 
-      if (!activo) return
-      setSolicitudExistente(resSolicitud.data ?? null)
-      setEsFavorito(Boolean(resFavorito.data))
+      const { data: favoritos } = await supabase
+        .from('favoritos')
+        .select('id')
+        .eq('vacante_id', vacante.id)
+        .eq('candidato_id', sesion.user.id)
+
+      setSolicitudExistente(solicitudes && solicitudes.length > 0 ? solicitudes[0] : null)
+      setEsFavorito(favoritos && favoritos.length > 0)
     }
 
     cargarEstadoCandidato()
-    return () => {
-      activo = false
-    }
   }, [sesion?.user?.id, perfil?.rol, vacante?.id])
 
   async function manejarPostulacion(e) {
@@ -99,7 +82,6 @@ function DetalleVacante() {
     setMensajeError('')
     setMensajeInfo('')
 
-    // RF-004 y RF-054: PostgreSQL valida RLS (candidato aprobado) y UNIQUE(vacante_id, candidato_id)
     const { error } = await supabase.from('solicitudes').insert({
       vacante_id: vacante.id,
       candidato_id: sesion.user.id,
@@ -119,12 +101,12 @@ function DetalleVacante() {
       return
     }
 
-    navigate('/confirmacion', {
-      state: {
-        titulo: vacante.titulo,
-        empresa: vacante.empresa?.nombre || 'la empresa',
-      },
-    })
+    navigate('/confirmacion')
+  }
+
+  function irALogin() {
+    localStorage.setItem('volverA', `/vacantes/${vacante.id}`)
+    navigate('/login')
   }
 
   async function alternarFavorito() {
@@ -162,7 +144,7 @@ function DetalleVacante() {
   if (cargando) {
     return (
       <div className="contenedor contenedor-angosto">
-        <p role="status">Cargando detalle de la vacante…</p>
+        <p>Cargando detalle de la vacante…</p>
       </div>
     )
   }
@@ -171,27 +153,20 @@ function DetalleVacante() {
     return (
       <div className="contenedor contenedor-angosto">
         <Link className="enlace-volver" to="/">
-          &larr; Volver a vacantes
+          ← Volver a vacantes
         </Link>
         <MensajeEstado tipo="error">{errorCarga}</MensajeEstado>
       </div>
     )
   }
 
-  const listaRequisitos = (vacante.requisitos || '')
-    .split('\n')
-    .map((linea) => linea.trim())
-    .filter(Boolean)
-
-  const listaPrestaciones = (vacante.prestaciones || '')
-    .split('\n')
-    .map((linea) => linea.trim())
-    .filter(Boolean)
+  const listaRequisitos = vacante.requisitos.split('\n')
+  const listaPrestaciones = vacante.prestaciones.split('\n')
 
   return (
     <div className="contenedor contenedor-angosto">
       <Link className="enlace-volver" to="/">
-        &larr; Volver a vacantes
+        ← Volver a vacantes
       </Link>
 
       <div className="encabezado-pagina">
@@ -247,12 +222,10 @@ function DetalleVacante() {
         </ul>
       </section>
 
-      {/* RF-051: Botón Llamar SOLO si la vacante tiene teléfono de contacto */}
       {vacante.telefono_contacto && (
         <div className="aviso">
           <p>
-            Esta empresa también recibe postulaciones por teléfono:{' '}
-            <strong>{vacante.telefono_contacto}</strong>
+            Esta empresa también recibe postulaciones por teléfono: <strong>{vacante.telefono_contacto}</strong>
           </p>
           <div className="acciones">
             <Boton
@@ -278,11 +251,7 @@ function DetalleVacante() {
           <div className="aviso">
             <p>Inicia sesión con tu cuenta de candidato para postularte a este empleo.</p>
             <div className="acciones">
-              <Boton
-                variante="primario"
-                to="/login"
-                state={{ desde: `/vacantes/${vacante.id}` }}
-              >
+              <Boton variante="primario" onClick={irALogin}>
                 Iniciar sesión
               </Boton>
               <Boton variante="secundario" to="/registro">
@@ -306,9 +275,8 @@ function DetalleVacante() {
 
             {solicitudExistente && (
               <MensajeEstado tipo="info">
-                Ya enviaste una solicitud a esta vacante (estatus actual:{' '}
-                <strong>{solicitudExistente.estatus}</strong>).{' '}
-                <Link to="/mis-solicitudes">Ver en Mis solicitudes</Link>.
+                <p>Ya enviaste una solicitud a esta vacante. Estatus actual: <strong>{solicitudExistente.estatus}</strong></p>
+                <Link to="/mis-solicitudes">Ver en Mis solicitudes</Link>
               </MensajeEstado>
             )}
 
