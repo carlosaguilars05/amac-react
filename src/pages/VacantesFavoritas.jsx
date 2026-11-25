@@ -5,7 +5,7 @@ import Boton from '../components/Boton'
 import MensajeEstado from '../components/MensajeEstado'
 import { formatearSueldo } from '../lib/constantes'
 
-export default function VacantesFavoritas() {
+function VacantesFavoritas() {
   const { sesion } = useAuth()
   const [favoritos, setFavoritos] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -148,3 +148,5 @@ export default function VacantesFavoritas() {
     </div>
   )
 }
+
+export default VacantesFavoritas
